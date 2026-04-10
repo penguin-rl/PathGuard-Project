@@ -1,0 +1,5 @@
+google-generativeai
+opencv-python
+pyttsx3
+python-dotenv
+Pillow
