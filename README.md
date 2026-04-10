@@ -1,82 +1,78 @@
-# PathGuard (路徑守護者)
+# 專案名稱
 
-**PathGuard (路徑守護者)** 是一款即時 AI 導航助理，旨在幫助所有人，尤其是視障人士，安全且自信地在世界中導航。
+PathGuard 路徑守護者
 
-應用程式運用 **Google's Gemini 2.0 Flash API** 與 **OpenCV**，透過分析即時攝影機畫面來辨識障礙物、人行道邊界、行人穿越道號誌，以及危險的快速移動物體，並提供即時的語音回饋來引導使用者。
+# 專案簡介
 
-## 展示影片
+PathGuard 是一款「即時 AI 路徑安全助理」，透過即時影像理解與動態偵測，輸出可中斷、可執行的短句語音指引，協助使用者在街道環境中更安全地通行。
 
-[請在此處放置您的展示影片]
+# 功能列表
 
----
+- 即時影像擷取：支援 `--source 0`（攝影機）或 `--source <video_path>`（影片檔）或 `--source synthetic`（合成測試來源）
+- 場景語意理解（Gemini 2.0 Flash）：以時鐘方位輸出精簡指令，分析間隔預設 3 秒
+- 動態危險偵測（OpenCV Optical Flow）：聚焦中央走道區域，偵測快速接近與顯著位移，危險事件可插播中斷語音
+- 路徑對齊（OpenCV 邊界推定）：估計安全走廊中心偏移，輸出「Veering Left / Veering Right」修正提示
+- 風險仲裁（Risk Arbitration）：優先順序為「危險 > 偏移 > 一般描述」
+- 跨平台語音輸出：macOS 使用 `say`，Windows/Linux 使用 `pyttsx3`
 
-## 靈感來源
+# 技術架構
 
-本專案的靈感來自於 **WalkVLM** (arXiv:2412.20903)，該研究探討了如何使用視覺語言模型 (VLMs) 為視障人士提供步行輔助。如同 WalkVLM，**PathGuard** 運用了多模態 AI (Gemini 2.0) 的推理能力來理解複雜場景，並即時提供簡潔、可操作的指引。
+`Camera`（即時影像）→ `MotionEngine`（光流動態）與 `PathAlignmentEngine`（走廊偏移）→ `VisionEngine`（Gemini 場景理解）→ `RiskArbiter`（風險優先序）→ `AudioEngine`（TTS 與可中斷播報）
 
-## 主要功能
+# 專案結構
 
-*   **即時障礙物偵測**：使用時鐘方位識別車輛、行人、柱子與其他危險物（例如：「兩點鐘方向有車輛」）。
-*   **路徑對齊**：引導使用者走在人行道上，並在偏離路線時發出警告。
-*   **行人穿越道辨識**：偵測行人穿越道號誌（可通行/禁止通行）與交通號誌。
-*   **快速移動警告**（可選功能）：使用光流法 (Optical Flow) 偵測快速接近的物體（汽車、自行車），並提供自動的「警告：快速接近中」提示。
-*   **語音中斷功能**：允許緊急警告中斷目前的語音描述，以提升安全性。
+- `demo.py`：主程式（整合影像、動態偵測、路徑對齊、Gemini、語音、風險仲裁）
+- `camera.py`：攝影機來源與 `SyntheticCamera`
+- `vision.py`：Gemini 影像分析
+- `motion.py`：OpenCV 光流動態偵測
+- `path_alignment.py`：OpenCV 路徑對齊
+- `risk.py`：風險仲裁與優先序事件
+- `audio.py`：TTS 與 `interrupt=True` 中斷機制
+- `requirements.txt`：Python 依賴
+- `.env.example`：環境變數範例
 
-## 系統需求
+# 本地測試教學
 
-*   **Python 3.10+** (於 Python 3.13 環境下開發)
-*   **網路攝影機** (內建或 USB 外接)
-*   **Gemini API Key** (請至 Google AI Studio 申請)
-*   **作業系統**：macOS (建議使用以獲得原生語音支援)、Windows 或 Linux (需安裝 `pyttsx3`)
+以下流程已在 macOS（Python 3.13）驗證可執行。
 
-## 安裝步驟
-
-1.  **複製儲存庫**：
-    ```bash
-    git clone <repo_url>
-    cd <repo_dir>
-    ```
-
-2.  **安裝依賴套件**：
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *依賴套件包含：`google-generativeai`、`opencv-python`、`pillow`、`python-dotenv`。*
-
-3.  **設定 API Key**：
-    *   在專案根目錄建立一個名為 `.env` 的檔案。
-    *   加入您的 Gemini API key：
-        ```env
-        GEMINI_API_KEY=your_api_key_here
-        ```
-
-## 使用說明
-
-執行主程式：
+1. 安裝依賴
 
 ```bash
-python demo.py
+python3 -m pip install -r requirements.txt
 ```
 
-*   **Q**：退出應用程式。
+2. 離線快速自測（不需要攝影機、不需要 `GEMINI_API_KEY`）
 
-### 設定
-
-您可以透過編輯 `demo.py` 來啟用/停用實驗性的**動態偵測**功能（為確保穩定性，此功能預設為停用）：
-
-```python
-# demo.py 第 53 行
-ENABLE_MOTION = False  # 設為 True 即可啟用快速移動追蹤
+```bash
+python3 demo.py --source synthetic --offline --headless --seconds 2
 ```
 
-## 系統架構
+3. 啟用光流偵測（離線、合成來源）
 
-*   `vision.py`：處理與 Gemini API 的互動，用於場景分析。
-*   `motion.py`：使用 OpenCV 光流法進行快速移動與逼近偵測。
-*   `audio.py`：管理文字轉語音輸出，支援 macOS 原生 `say` 指令與中斷功能。
-*   `camera.py`：執行緒安全的攝影機畫面擷取。
-*   `demo.py`：整合所有模組的主應用程式迴圈。
+```bash
+python3 demo.py --source synthetic --offline --headless --seconds 2 --motion
+```
 
-## 授權條款
+## 參數說明
 
-[MIT License](LICENSE)
+- `--source`：影像來源，支援 `0`（預設攝影機）、影片檔路徑、或 `synthetic`（合成來源）
+- `--offline`：不呼叫 Gemini（不需要 `GEMINI_API_KEY`）
+- `--lang`：語言，支援 `zh` 或 `en`
+- `--motion` / `--no-motion`：啟用/停用光流動態警示
+- `--headless`：不開啟視窗（適合做快速 smoke test）
+- `--seconds`：執行 N 秒後自動結束（`0` 代表直到手動退出）
+
+# 環境變數
+
+- `GEMINI_API_KEY`：Gemini API 金鑰（需要啟用雲端場景理解時才必填）
+
+範例請參考 `.env.example`，自行建立 `.env` 並設定 `GEMINI_API_KEY`。
+
+# Coolify 部署教學
+
+本專案目前未提供已驗證的 Coolify 部署流程。
+
+# 前端 / 後端詳細文件連結
+
+- 前端：無（目前為單一 Python 原型）
+- 後端：無（目前為單一 Python 原型）
