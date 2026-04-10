@@ -69,7 +69,16 @@ class AudioEngine:
                     except:
                         pass
             
-            self.queue.put(text)
+            if self.queue.full():
+                try:
+                    self.queue.get_nowait()
+                    self.queue.task_done()
+                except queue.Empty:
+                    pass
+            try:
+                self.queue.put_nowait(text)
+            except queue.Full:
+                pass
         else:
             # Normal speech: Prioritize LATEST info.
             # If queue is full, drop the OLDEST item to make room for the NEWEST.
@@ -79,7 +88,10 @@ class AudioEngine:
                     self.queue.task_done()
                 except queue.Empty:
                     pass
-            self.queue.put(text)
+            try:
+                self.queue.put_nowait(text)
+            except queue.Full:
+                pass
 
     def _run(self):
         while self.running:

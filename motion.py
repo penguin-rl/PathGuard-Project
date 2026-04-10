@@ -18,7 +18,7 @@ class MotionEngine:
         Returns: (bool, message)
         """
         # Convert to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         
         # Resize for faster processing
         small_gray = cv2.resize(gray, (0,0), fx=0.5, fy=0.5)
@@ -90,6 +90,7 @@ class MotionEngine:
                      current_frame_detected = True
                  elif avg_x < -1.0:
                      temp_message = "Motion Left"
+                     current_frame_detected = True
 
         self.prev_gray = small_gray
         
@@ -103,4 +104,3 @@ class MotionEngine:
             return True, temp_message
             
         return False, None
-

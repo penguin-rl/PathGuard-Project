@@ -1,4 +1,5 @@
 google-generativeai
+google-genai
 opencv-python
 pyttsx3
 python-dotenv
