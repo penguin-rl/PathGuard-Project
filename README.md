@@ -1,6 +1,6 @@
-# Be My Sight 👁️
+# PathGuard (路徑守護者) 🛡️
 
-**Be My Sight** is a real-time AI navigation assistant designed to help blind and visually impaired individuals navigate the world safely. 
+**PathGuard (路徑守護者)** is a real-time AI navigation assistant designed to help everyone, especially blind and visually impaired individuals, navigate the world safely and confidently. 
 
 Using **Google's Gemini 2.0 Flash API** and **OpenCV**, the application analyzes a live camera feed to identify obstacles, sidewalk boundaries, crosswalk signals, and dangerous fast-moving objects. It provides immediate audio feedback to guide the user.
 
@@ -12,7 +12,7 @@ Using **Google's Gemini 2.0 Flash API** and **OpenCV**, the application analyzes
 
 ## 🔬 Inspiration
 
-This project is inspired by **WalkVLM** (arXiv:2412.20903), which explores using Vision-Language Models (VLMs) to provide walking assistance for visually impaired individuals. Like WalkVLM, **Be My Sight** leverages the reasoning capabilities of multimodal AI (Gemini 2.0) to understand complex scenes and provide concise, actionable guidance in real-time.
+This project is inspired by **WalkVLM** (arXiv:2412.20903), which explores using Vision-Language Models (VLMs) to provide walking assistance for visually impaired individuals. Like WalkVLM, **PathGuard** leverages the reasoning capabilities of multimodal AI (Gemini 2.0) to understand complex scenes and provide concise, actionable guidance in real-time.
 
 ## ✨ Key Features
 
@@ -33,8 +33,8 @@ This project is inspired by **WalkVLM** (arXiv:2412.20903), which explores using
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/be-my-sight.git
-    cd be-my-sight
+    git clone <repo_url>
+    cd <repo_dir>
     ```
 
 2.  **Install dependencies**:
